@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.weservice.catering.wtakeout.modules.app.dao.ProductInfoDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.weservice.catering.wtakeout.modules.app.entity.ProductInfoEntity" id="productInfoMap">
+        <result property="productId" column="product_id"/>
+        <result property="url" column="url"/>
+        <result property="productName" column="product_name"/>
+        <result property="productType" column="product_type"/>
+        <result property="merchId" column="merch_id"/>
+        <result property="totalLimit" column="total_limit"/>
+        <result property="limitTime" column="limit_time"/>
+        <result property="returnPoint" column="return_point"/>
+        <result property="totalLeft" column="total_left"/>
+        <result property="recommend" column="recommend"/>
+        <result property="distance" column="distance"/>
+        <result property="memberReturnPoint" column="member_return_point"/>
+        <result property="leastCost" column="least_cost"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+    <select id="getListByLocation" resultMap="productInfoMap"
+            parameterType="com.weservice.catering.wtakeout.modules.app.entity.req.ProductInfoReq">
+        SELECT *,
+        round(
+        6378.137 * 2
+        * ASIN(
+        SQRT(
+        POW(SIN((#{req.latitude} * PI() / 180 - latitude * PI() / 180) / 2), 2)
+        + COS(#{req.latitude} * PI() / 180)
+        * COS(#{req.latitude} * PI() / 180)
+        * POW(
+        SIN((#{req.longitude} * PI() / 180 - longitude * PI() / 180) / 2),
+        2)
+        )
+        ) * 1000)
+        as distance
+        FROM product_info
+        where sale_flag = 'true'
+        <if test="req.productName!= null and req.productName!='' ">product_info.product_name like
+            concat('%',#{req.productName},'%')
+        </if>
+        <if test="req.productType!= null and req.productType!='' ">product_info.product_type =#{req.productType}
+        </if>
+
+        ORDER BY distance ASC
+    </select>
+    <select id="getProductById" resultType="com.weservice.catering.wtakeout.modules.app.entity.ProductInfoEntity">
+        SELECT *,
+               round(
+                           6378.137 * 2
+                           * ASIN(
+                                   SQRT(
+                                               POW(SIN((#{latitude} * PI() / 180 - latitude * PI() / 180) / 2), 2)
+                                               + COS(#{latitude} * PI() / 180)
+                                                   * COS(#{latitude} * PI() / 180)
+                                                   * POW(
+                                                         SIN((#{longitude} * PI() / 180 - longitude * PI() / 180) / 2),
+                                                         2)
+                                       )
+                               ) * 1000)
+                   as distance
+        FROM product_info
+        where product_id = #{productId}
+          and sale_flag = 'true'
+    </select>
+    <update id="modifyTotalLeft">
+        update product_info
+        set total_left  = total_left + #{deltaTotalLeft},
+            update_time = now()
+        where product_id = #{productId}
+    </update>
+    <update id="update">
+        update product_info
+        <trim prefix="set" suffixOverrides=",">
+            <if test="url!=null and url!=''">url=#{url},</if>
+            <if test="productName!=null and productName!=''">product_name=#{productName},</if>
+            <if test="limitTime!=null">limit_time=#{limitTime},</if>
+            <if test="totalLimit!=null">total_limit=#{totalLimit},</if>
+            <if test="returnPoint!=null ">return_point=#{returnPoint},</if>
+            <if test="totalLeft!=null ">total_left=#{totalLeft},</if>
+            <if test="recommend!=null ">recommend=#{recommend},</if>
+            <if test="productType!=null ">product_type=#{productType},</if>
+            <if test="updateTime!=null ">update_time=#{updateTime},</if>
+            <if test="longitude!=null ">longitude=#{longitude},</if>
+            <if test="latitude!=null ">latitude=#{latitude},</if>
+            <if test="address!=null and address!=''">address=#{address},</if>
+            <if test="memberReturnPoint!=null ">member_return_point=#{memberReturnPoint},</if>
+            <if test="leastCost!=null ">least_cost=#{leastCost},</if>
+            <if test="price!=null ">price=#{price},</if>
+            <if test="rules!=null ">rules=#{rules},</if>
+            <if test="productPicUrl!=null and productPicUrl!='' ">product_pic_url=#{productPicUrl},</if>
+        </trim>
+        WHERE product_id=#{productId}
+    </update>
+    <update id="modifySaleFlag">
+        <foreach collection="list" item="item" index="index" separator=";">
+            update product_info set sale_flag = #{saleFlag} where product_id = #{item}
+        </foreach>
+    </update>
+</mapper>

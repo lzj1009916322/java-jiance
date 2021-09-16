@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.weservice.catering.wtakeout.modules.sys.dao.SysUserTokenDao">
+
+    <select id="queryByToken" resultType="com.weservice.catering.wtakeout.modules.sys.entity.SysUserTokenEntity">
+        select *
+        from sys_user_token
+        where token = #{value}
+    </select>
+
+    <select id="queryByUserId" resultType="com.weservice.catering.wtakeout.modules.sys.entity.SysUserTokenEntity">
+        select *
+        from sys_user_token
+        where user_id = #{value}
+    </select>
+    <select id="queryByAppUserId" resultType="com.weservice.catering.wtakeout.modules.sys.entity.SysUserTokenEntity">
+        select *
+        from sys_user_token
+        where app_user_id = #{value}
+    </select>
+    <update id="updateByUserId" parameterType="com.weservice.catering.wtakeout.modules.sys.entity.SysUserTokenEntity">
+        update sys_user_token
+        set token        = #{token},
+            update_time   = #{updateTime},
+            expire_time = #{expireTime}
+        where user_id = #{userId}
+    </update>
+    <update id="updateByAppUserId"
+            parameterType="com.weservice.catering.wtakeout.modules.sys.entity.SysUserTokenEntity">
+        update sys_user_token
+        set token        = #{token},
+            update_time   = #{updateTime},
+            expire_time = #{expireTime}
+            where app_user_id = #{appUserId}
+    </update>
+</mapper>

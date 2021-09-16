@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.weservice.catering.wtakeout.modules.app.dao.AppUserInfoDao">
+    <update id="updateUser">
+        update user_info
+        <trim prefix= "set"  suffixOverrides=",">
+            <if test="phone!=null and phone!=''">phone=#{phone},</if>
+            <if test="member!=null and member!=''">member=#{member},</if>
+            <if test="point!=null">point=#{point},</if>
+            <if test="address!=null and address!=''">address=#{address},</if>
+            <if test="nickName!=null and nickName!=''">nick_name=#{nickName},</if>
+            <if test="gender!=null and gender!=''">gender=#{gender},</if>
+            <if test="avatarUrl!=null and avatarUrl!=''">avatar_url=#{avatarUrl},</if>
+            <if test="updateTime!=null ">update_time=#{updateTime},</if>
+            <if test="unionId!=null and unionId!=''">union_id=#{unionId},</if>
+            <if test="wechatPic!=null and wechatPic!=''">wechat_pic=#{wechatPic},</if>
+            <if test="aliPayPic!=null and aliPayPic!=''">ali_pay_pic=#{aliPayPic},</if>
+        </trim>
+        WHERE user_id=#{userId}
+    </update>
+
+</mapper>

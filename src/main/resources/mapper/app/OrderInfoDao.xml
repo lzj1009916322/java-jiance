@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.weservice.catering.wtakeout.modules.app.dao.OrderInfoDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.weservice.catering.wtakeout.modules.app.entity.OrderInfoEntity" id="orderInfoMap">
+        <result property="orderId" column="order_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="productId" column="product_id"/>
+        <!--        <result property="buyPic" column="buy_pic"/>-->
+        <!--        <result property="praisePic" column="praise_pic"/>-->
+        <!--        <result property="effective" column="effective"/>-->
+        <result property="failReason" column="fail_reason"/>
+        <result property="status" column="status"/>
+        <result property="state" column="state"/>
+        <result property="takeoutOrder" column="takeout_order"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+    <resultMap type="com.weservice.catering.wtakeout.modules.app.entity.OrderInfoEntity" id="orderInfoListMap">
+        <result property="orderId" column="order_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="productId" column="product_id"/>
+        <!--        <result property="effective" column="effective"/>-->
+        <result property="status" column="status"/>
+        <result property="state" column="state"/>
+        <result property="productName" column="product_name"/>
+        <result property="productPicUrl" column="product_pic_url"/>
+        <result property="takeoutOrder" column="takeout_order"/>
+        <result property="productType" column="product_type"/>
+        <result property="cost" column="cost"/>
+        <result property="failReason" column="fail_reason"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <collection property="buyPics" ofType="com.weservice.catering.wtakeout.modules.app.entity.PicInfoEntity">
+            <id property="picId" column="pic_id" jdbcType="INTEGER"/>
+            <result property="picUrl" column="pic_url" jdbcType="VARCHAR"/>
+            <result property="bizId" column="biz_id" jdbcType="VARCHAR"/>
+            <result property="type" column="type" jdbcType="VARCHAR"/>
+        </collection>
+        <collection property="praisePics" ofType="com.weservice.catering.wtakeout.modules.app.entity.PicInfoEntity">
+            <id property="picId" column="praise_pic_id" jdbcType="INTEGER"/>
+            <result property="picUrl" column="prase_pic_url" jdbcType="VARCHAR"/>
+            <result property="bizId" column="prase_biz_id" jdbcType="VARCHAR"/>
+            <result property="type" column="praise_type" jdbcType="VARCHAR"/>
+        </collection>
+    </resultMap>
+    <select id="queryByPage" resultType="com.weservice.catering.wtakeout.modules.app.entity.OrderInfoEntity">
+        SELECT * from order_info
+        <where>
+            <if test="req.orderId!= null and req.orderId!='' ">order_info.order_id =#{req.orderId}</if>
+
+            <if test="req.userId != null and req.userId!=''">and order_info.user_id=#{req.userId}</if>
+
+            <if test="req.productId != null and req.productId!=''">and order_info.product_id = #{req.productId}</if>
+            <if test="req.status != null and req.status!=''">and order_info.status = #{req.status}</if>
+            <if test="req.state!= null and req.state!=''">and order_info.state = #{req.state}</if>
+            <if test="req.takeoutOrder != null and req.takeoutOrder!=''">and order_info.takeout_order =
+                #{req.takeoutOrder}
+            </if>
+        </where>
+        ORDER BY order_info.create_time desc
+    </select>
+
+    <select id="queryById" resultMap="orderInfoListMap">
+        SELECT order_info.*,
+               buy.*,
+               praise.pic_id  as praise_pic_id,
+               praise.pic_url as prase_pic_url,
+               praise.biz_id  as prase_biz_id,
+               praise.type    as praise_type
+        FROM order_info
+                 LEFT JOIN pic_info buy ON order_info.order_id :: TEXT = buy.biz_id and buy.type='buy'
+        LEFT JOIN pic_info praise
+        ON order_info.order_id :: TEXT = praise.biz_id and praise.type='praise'
+        where
+            order_info.order_id =#{orderId}
+    </select>
+    <update id="update">
+        update order_info
+        <trim prefix="set" suffixOverrides=",">
+            <if test="cost!=null and cost!=''">cost=#{cost},</if>
+            <if test="status!=null and status!=''">status=#{status},</if>
+            <if test="state!=null and state!=''">state=#{state},</if>
+            <if test="takeoutOrder!=null and takeoutOrder!=''">takeout_order=#{takeoutOrder},</if>
+            <if test="createTime!=null">create_time=#{createTime},</if>
+            <if test="updateTime!=null">update_time=#{updateTime},</if>
+            <!--            <if test="buyPic!=null and buyPic!=''">buy_pic=#{buyPic},</if>-->
+            <!--            <if test="praisePic!=null and praisePic!=''">praise_pic=#{praisePic},</if>-->
+        </trim>
+        WHERE order_id=#{orderId}
+    </update>
+    <select id="selectUnfinished" resultType="com.weservice.catering.wtakeout.modules.app.entity.OrderInfoEntity">
+        SELECT *
+        from order_info
+        WHERE (create_time + interval '30 MINUTE' &lt; now())
+          and status = 'buy'
+    </select>
+    <select id="queryByCondition" resultType="com.weservice.catering.wtakeout.modules.app.entity.OrderInfoEntity">
+        SELECT *
+        from order_info
+        <where>
+            <if test="req.orderId!= null and req.orderId!='' ">order_info.order_id =#{req.orderId}</if>
+            <if test="req.userId!= null and req.userId!='' ">order_info.user_id =#{userId}</if>
+
+            <if test="req.userId != null and req.userId!=''">and order_info.user_id=#{req.userId}</if>
+
+            <if test="req.productId != null and req.productId!=''">and order_info.product_id = #{req.productId}</if>
+            <if test="req.status != null and req.status!=''">and order_info.status = #{req.status}</if>
+            <if test="req.state!= null and req.state!=''">and order_info.state = #{req.state}</if>
+            <if test="req.takeoutOrder != null and req.takeoutOrder!=''">and order_info.takeout_order =
+                #{req.takeoutOrder}
+            </if>
+        </where>
+    </select>
+    <select id="isBought" resultType="com.weservice.catering.wtakeout.modules.app.entity.IsBoughtDetailEntity">
+        select count(*) > 0 as isBought, status as orderStatus, order_id
+        from order_info
+        where product_id = #{productId}
+          and user_id = #{userId}
+          and state = 'doing'
+          and status !='audit'
+        group by status, order_id
+    </select>
+</mapper>

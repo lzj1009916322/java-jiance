@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.weservice.catering.wtakeout.modules.sys.dao.SysOrganizationDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.weservice.catering.wtakeout.modules.sys.entity.SysOrganizationEntity" id="sysOrganizationMap">
+        <result property="code" column="code"/>
+        <result property="superCode" column="super_code"/>
+        <result property="name" column="name"/>
+        <result property="level" column="level"/>
+        <result property="status" column="status"/>
+    </resultMap>
+
+    <resultMap type="com.weservice.catering.wtakeout.modules.sys.vo.SysOrganizationVo" id="sysOrganizationVoMap">
+        <result property="code" column="code"/>
+        <result property="superCode" column="super_code"/>
+        <result property="superName" column="super_name"/>
+        <result property="name" column="name"/>
+        <result property="level" column="level"/>
+        <result property="status" column="status"/>
+    </resultMap>
+    <sql id="voSelect">
+        select o.code,o.super_code,o.name,o.level,o.status,og.name as super_name from sys_organization o left join sys_organization og on og.code = o.super_code where 1=1
+    </sql>
+    <select id="selectPageVo" resultMap="sysOrganizationVoMap">
+      <include refid="voSelect"></include>
+        <if test="null != name and name != ''">
+          and o.name like CONCAT('%',#{name},'%')
+        </if>
+        <if test="null != superName and superName != ''">
+          and og.name like CONCAT('%',#{superName},'%')
+        </if>
+    </select>
+
+</mapper>

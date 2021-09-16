@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.weservice.catering.wtakeout.modules.app.dao.MemberInfoDao">
+
+    <update id="update">
+        update member_info
+        <trim prefix="set" suffixOverrides=",">
+            <if test="limitTime!=null">limit_ime=#{limitTime},</if>
+            <if test="updateTime !=null ">update_time=#{updateTime},</if>
+        </trim>
+        WHERE user_id=#{userId}
+    </update>
+    <select id="selectExceedMember" resultType="com.weservice.catering.wtakeout.modules.app.entity.AppUserInfoEntity">
+        SELECT *
+        FROM "user_info",
+             "member_info"
+        WHERE user_info.user_id = member_info.user_id
+          and member_info.limit_time <![CDATA[<=]]> now()
+          and user_info.member = '1'
+    </select>
+</mapper>
